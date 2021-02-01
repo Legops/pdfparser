@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * @file
  *          This file is part of the PdfParser library.
@@ -70,6 +71,8 @@ class PDFObject
      * @var Config
      */
     protected $config;
+
+    protected $searchFound;
 
     /**
      * @param Header $header
@@ -265,7 +268,7 @@ class PDFObject
      *
      * @throws \Exception
      */
-    public function getText(Page $page = null)
+    public function getText(Page $page = null, $searchText = null, $returnAxes = false)
     {
         $text = '';
         $sections = $this->getSectionsText($this->content);
@@ -340,6 +343,12 @@ class PDFObject
                     case 'TJ':
                         $sub_text = $current_font->decodeText($command[self::COMMAND]);
                         $text .= $sub_text;
+                        if ($searchText && strpos($text, $searchText) !== false) {
+                            $this->searchFound = true;
+                            if ($returnAxes) {
+                                return ($current_position_tm['x']) ? $current_position_tm : $current_position_td;
+                            }
+                        }
                         break;
 
                     // set leading
@@ -437,6 +446,14 @@ class PDFObject
 
                     default:
                 }
+            }
+        }
+        
+        if ($searchText && strpos(preg_replace('/\s+/', '', $text), $searchText) !== false) {
+            // \Log::debug($current_font->getType());
+            //\Log::debug($command[self::COMMAND]);
+            if ($returnAxes) {
+                return $current_position_tm;
             }
         }
 

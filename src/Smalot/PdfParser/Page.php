@@ -189,7 +189,7 @@ class Page extends PDFObject
      *
      * @return string
      */
-    public function getText(self $page = null)
+    public function getText(Page $page = null, $searchText = null, $returnAxes = false)
     {
         if ($contents = $this->get('Contents')) {
             if ($contents instanceof ElementMissing) {
@@ -225,7 +225,7 @@ class Page extends PDFObject
                 $contents = new PDFObject($this->document, $header, $new_content);
             }
 
-            return $contents->getText($this);
+            return $contents->getText($this, $searchText, $returnAxes);
         }
 
         return '';
